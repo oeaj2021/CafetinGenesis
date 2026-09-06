@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-genesis_db}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
     networks:
       - genesis-net
 
@@ -20,6 +22,8 @@ services:
     restart: always
     depends_on:
       - postgres
+    ports:
+      - '4000:4000'
     environment:
       PORT: 4000
       NODE_ENV: production
