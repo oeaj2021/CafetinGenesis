@@ -48,6 +48,7 @@ services:
       N8N_WEBHOOK_PAYMENT_NOTIFY: ${N8N_WEBHOOK_PAYMENT_NOTIFY:-}
     networks:
       - genesis-net
+      - dokploy-network
 
   frontend:
     build:
@@ -61,6 +62,7 @@ services:
       - '80'
     networks:
       - genesis-net
+      - dokploy-network
 
 volumes:
   pgdata:
@@ -68,3 +70,6 @@ volumes:
 networks:
   genesis-net:
     driver: bridge
+  dokploy-network:
+    external: true
+
