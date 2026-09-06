@@ -14,7 +14,7 @@ import { Invoice } from '../../types';
 export const KitchenDisplay: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'ALL' | 'PREPARING' | 'READY'>('ALL');
+  const [filter, setFilter] = useState<'ALL' | 'PREPARING' | 'READY' | 'DAILY_MENU'>('ALL');
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   // Local state for kitchen preparation status per invoice
@@ -51,7 +51,7 @@ export const KitchenDisplay: React.FC = () => {
   const loadOrders = async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
-      const res = await api.get('/invoices?limit=30');
+      const res = await api.get('/invoices?limit=40');
       const fetched: Invoice[] = res.data.invoices || [];
 
       // Only today's orders
@@ -84,6 +84,9 @@ export const KitchenDisplay: React.FC = () => {
     if (st === 'DELIVERED') return false;
     if (filter === 'PREPARING') return st === 'PREPARING';
     if (filter === 'READY') return st === 'READY';
+    if (filter === 'DAILY_MENU') {
+      return inv.notes?.includes('[MENÚ DEL DÍA') || inv.items?.some(i => i.productName.toLowerCase().includes('menú del día'));
+    }
     return true;
   });
 
@@ -102,11 +105,11 @@ export const KitchenDisplay: React.FC = () => {
             Pantalla de Cocina & Baristas (KDS)
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Cola de preparación de comandas y pedidos en tiempo real
+            Cola de preparación de comandas, menús del día y pedidos en tiempo real
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
             className={`p-2 rounded-xl border text-xs font-bold transition-all ${
@@ -129,7 +132,7 @@ export const KitchenDisplay: React.FC = () => {
 
           {/* Filter Tabs */}
           <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-            {(['ALL', 'PREPARING', 'READY'] as const).map((tab) => (
+            {(['ALL', 'PREPARING', 'READY', 'DAILY_MENU'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
@@ -139,7 +142,13 @@ export const KitchenDisplay: React.FC = () => {
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                {tab === 'ALL' ? 'Todos' : tab === 'PREPARING' ? 'En Cocina' : 'Listos'}
+                {tab === 'ALL'
+                  ? 'Todos'
+                  : tab === 'PREPARING'
+                  ? 'En Cocina'
+                  : tab === 'READY'
+                  ? 'Listos'
+                  : '⭐ Menú del Día'}
               </button>
             ))}
           </div>
@@ -160,7 +169,7 @@ export const KitchenDisplay: React.FC = () => {
           </div>
           <h3 className="text-lg font-black text-slate-800">¡Todo al día en cocina!</h3>
           <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-            No hay comandas pendientes de preparación en este momento. Las nuevas órdenes del POS aparecerán automáticamente aquí.
+            No hay comandas pendientes de preparación en este momento. Las nuevas órdenes del POS y del Menú Diario aparecerán automáticamente aquí.
           </p>
         </div>
       ) : (
@@ -169,6 +178,9 @@ export const KitchenDisplay: React.FC = () => {
             const st = getStatus(inv.id);
             const minutes = getMinutesElapsed(inv.createdAt);
             const isLate = minutes >= 10 && st === 'PREPARING';
+            const isDailyMenu =
+              inv.notes?.includes('[MENÚ DEL DÍA') ||
+              inv.items?.some((i) => i.productName.toLowerCase().includes('menú del día'));
 
             return (
               <div
@@ -178,15 +190,24 @@ export const KitchenDisplay: React.FC = () => {
                     ? 'bg-emerald-50/40 border-emerald-300 ring-2 ring-emerald-400/30'
                     : isLate
                     ? 'bg-rose-50/40 border-rose-300 ring-2 ring-rose-400/30'
+                    : isDailyMenu
+                    ? 'bg-amber-50/30 border-amber-300 ring-2 ring-amber-400/30'
                     : 'bg-white border-slate-200'
                 }`}
               >
                 {/* Card Header */}
                 <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="text-base font-black text-slate-900">
-                      {inv.invoiceNumber}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-black text-slate-900">
+                        {inv.invoiceNumber}
+                      </span>
+                      {isDailyMenu && (
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider">
+                          ⭐ MENÚ DEL DÍA
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs font-bold text-slate-600 truncate max-w-[160px]">
                       {inv.clientName}
                     </p>
@@ -227,8 +248,13 @@ export const KitchenDisplay: React.FC = () => {
                   ))}
 
                   {inv.notes && (
-                    <div className="mt-2 p-2 bg-amber-50 rounded-xl border border-amber-200/60 text-[11px] font-medium text-amber-900">
-                      <strong>Nota:</strong> {inv.notes}
+                    <div className="mt-2 p-2.5 bg-amber-50 rounded-xl border border-amber-200/80 text-[11px] font-medium text-amber-950 space-y-1">
+                      <div className="font-bold text-[10px] uppercase tracking-wider text-amber-800">
+                        📋 Detalle de Producción / Cocina:
+                      </div>
+                      <div className="whitespace-pre-wrap leading-relaxed">
+                        {inv.notes}
+                      </div>
                     </div>
                   )}
                 </div>

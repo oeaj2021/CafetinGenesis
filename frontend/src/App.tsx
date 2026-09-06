@@ -14,6 +14,7 @@ import { Rates } from './pages/admin/Rates';
 import { Settings } from './pages/admin/Settings';
 import { CashRegister } from './pages/admin/CashRegister';
 import { KitchenDisplay } from './pages/admin/KitchenDisplay';
+import { DailyMenu } from './pages/admin/DailyMenu';
 import { useAuthStore } from './store/useAuthStore';
 
 // Protected Route Component
@@ -47,6 +48,7 @@ export const App: React.FC = () => {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="pos" element={<POS />} />
+          <Route path="daily-menu" element={<DailyMenu />} />
           <Route path="cocina" element={<KitchenDisplay />} />
           <Route path="caja" element={<CashRegister />} />
           <Route path="invoices" element={<Invoices />} />

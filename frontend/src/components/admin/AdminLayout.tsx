@@ -17,6 +17,7 @@ import {
   X,
   Coffee,
   ChefHat,
+  UtensilsCrossed,
   ChevronDown,
   ChevronRight,
   Boxes,
@@ -45,6 +46,7 @@ const NAV_SECTIONS: NavSection[] = [
     icon: Boxes,
     items: [
       { name: 'Punto de Venta / POS', href: '/admin/pos', icon: ShoppingCart },
+      { name: 'Menús Diarios & WhatsApp', href: '/admin/daily-menu', icon: UtensilsCrossed },
       { name: 'Cocina & Baristas (KDS)', href: '/admin/cocina', icon: ChefHat },
       { name: 'Caja & Arqueo', href: '/admin/caja', icon: Vault },
       { name: 'Facturación / Recibos', href: '/admin/invoices', icon: Receipt },

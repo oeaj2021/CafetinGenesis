@@ -10,10 +10,15 @@ import {
   Trash2,
   X,
   MapPin,
-  ChevronRight
+  ChevronRight,
+  UtensilsCrossed,
+  Flame,
+  Soup,
+  ChefHat,
+  CheckCircle2
 } from 'lucide-react';
 import { api } from '../../api/client';
-import { Product, Category, ExchangeRate } from '../../types';
+import { Product, Category, ExchangeRate, DailyMenuData, DailyMenuItem } from '../../types';
 import { Navbar } from '../../components/common/Navbar';
 import { useCartStore } from '../../store/useCartStore';
 import { useThemeStore } from '../../store/useThemeStore';
@@ -23,6 +28,7 @@ export const StoreHome: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeRate, setActiveRate] = useState<ExchangeRate | null>(null);
   const [businessSettings, setBusinessSettings] = useState<Record<string, string>>({});
+  const [dailyMenu, setDailyMenu] = useState<DailyMenuData | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -31,6 +37,18 @@ export const StoreHome: React.FC = () => {
   const [orderNotes, setOrderNotes] = useState('');
   const [orderType, setOrderType] = useState<'AQUI' | 'LLEVAR' | 'DELIVERY'>('AQUI');
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+
+  // Daily Menu Interactive Modal State
+  const [isDailyMenuModalOpen, setIsDailyMenuModalOpen] = useState(false);
+  const [selectedDailyDish, setSelectedDailyDish] = useState<DailyMenuItem | null>(null);
+  const [selectedDailySides, setSelectedDailySides] = useState<string[]>([]);
+  const [selectedDailyDrink, setSelectedDailyDrink] = useState<string>('');
+  const [dailyOrderName, setDailyOrderName] = useState('');
+  const [dailyOrderPhone, setDailyOrderPhone] = useState('');
+  const [dailyOrderNotes, setDailyOrderNotes] = useState('');
+  const [dailyOrderType, setDailyOrderType] = useState<'AQUÍ' | 'LLEVAR' | 'DELIVERY'>('AQUÍ');
+  const [sendingDailyOrder, setSendingDailyOrder] = useState(false);
+  const [dailyOrderSuccess, setDailyOrderSuccess] = useState(false);
 
   const cart = useCartStore();
   const setTheme = useThemeStore((state) => state.setTheme);
@@ -42,11 +60,12 @@ export const StoreHome: React.FC = () => {
   const loadStoreData = async () => {
     try {
       setLoading(true);
-      const [prodsRes, catsRes, rateRes, settingsRes] = await Promise.all([
+      const [prodsRes, catsRes, rateRes, settingsRes, menuRes] = await Promise.all([
         api.get('/products?activeOnly=true'),
         api.get('/categories'),
         api.get('/rates/active'),
-        api.get('/settings')
+        api.get('/settings'),
+        api.get('/daily-menu').catch(() => ({ data: { menu: null } }))
       ]);
 
       setProducts(prodsRes.data.products || []);
@@ -54,6 +73,16 @@ export const StoreHome: React.FC = () => {
       setActiveRate(rateRes.data.rate || null);
       const settings = settingsRes.data.settings || {};
       setBusinessSettings(settings);
+
+      if (menuRes.data?.menu && menuRes.data.menu.isActive) {
+        setDailyMenu(menuRes.data.menu);
+        if (menuRes.data.menu.mainDishes?.length > 0) {
+          const available = menuRes.data.menu.mainDishes.find((d: DailyMenuItem) => d.available);
+          setSelectedDailyDish(available || menuRes.data.menu.mainDishes[0]);
+          setSelectedDailySides(menuRes.data.menu.sideDishes?.slice(0, 2) || []);
+          setSelectedDailyDrink(menuRes.data.menu.drinks?.[0] || '');
+        }
+      }
 
       if (settings.THEME_COLOR) {
         setTheme(settings.THEME_COLOR);
@@ -109,6 +138,57 @@ export const StoreHome: React.FC = () => {
     window.open(url, '_blank');
   };
 
+  // Generar URL de WhatsApp para Menú Diario Personalizado
+  const sendDailyMenuWhatsApp = () => {
+    if (!dailyMenu || !selectedDailyDish) return;
+    const phone = businessSettings.BUSINESS_PHONE || dailyMenu.contactPhone || '584149998877';
+    const dishPriceVES = (selectedDailyDish.priceUSD * currentRate).toFixed(2);
+    const typeLabel = dailyOrderType === 'AQUÍ' ? '🍽️ Comer en el local' : dailyOrderType === 'LLEVAR' ? '🛍️ Para Llevar' : '🛵 Delivery a domicilio';
+
+    const customerLine = dailyOrderName.trim() ? `👤 *Cliente:* ${dailyOrderName.trim()}\n` : '';
+    const phoneLine = dailyOrderPhone.trim() ? `📞 *Teléfono:* ${dailyOrderPhone.trim()}\n` : '';
+    const sidesLine = selectedDailySides.length > 0 ? `🥗 *Contornos:* ${selectedDailySides.join(', ')}\n` : '';
+    const drinkLine = selectedDailyDrink ? `🥤 *Bebida:* ${selectedDailyDrink}\n` : '';
+    const soupLine = dailyMenu.soupOrStarter && dailyMenu.includesSoup ? `🍲 *Sopa/Entrada:* ${dailyMenu.soupOrStarter}\n` : '';
+    const notesLine = dailyOrderNotes.trim() ? `📝 *Instrucciones:* ${dailyOrderNotes.trim()}\n` : '';
+
+    const message = `👋 ¡Hola! Deseo pedir el *${dailyMenu.title.toUpperCase()}* de hoy (*${dailyMenu.date}*):\n\n${customerLine}${phoneLine}📍 *Modalidad:* ${typeLabel}\n\n🔥 *PLATO ELEGIDO:* *${selectedDailyDish.name}*\n${soupLine}${sidesLine}${drinkLine}${notesLine}\n━━━━━━━━━━━━━━━━━━━━\n💵 *TOTAL DÓLARES:* $${selectedDailyDish.priceUSD.toFixed(2)}\n🇻🇪 *TOTAL BOLÍVARES:* ${dishPriceVES} Bs\n📊 *Tasa Oficial BCV:* ${currentRate.toFixed(2)} Bs/$\n━━━━━━━━━━━━━━━━━━━━\n\n¿Me confirman disponibilidad y tiempo estimado de entrega? ¡Gracias!`;
+
+    const url = `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    setIsDailyMenuModalOpen(false);
+  };
+
+  // Enviar pedido directo de Menú Diario a Producción / Cocina (KDS)
+  const sendDailyMenuDirectToKitchen = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDailyDish) return;
+    try {
+      setSendingDailyOrder(true);
+      await api.post('/daily-menu/order', {
+        clientName: dailyOrderName.trim() || 'Cliente Portal Web',
+        clientPhone: dailyOrderPhone.trim() || 'N/A',
+        mainDishName: selectedDailyDish.name,
+        mainDishPriceUSD: selectedDailyDish.priceUSD,
+        quantity: 1,
+        sides: selectedDailySides,
+        drink: selectedDailyDrink,
+        orderType: dailyOrderType,
+        notes: dailyOrderNotes,
+        paymentMethod: 'CASH_USD'
+      });
+      setDailyOrderSuccess(true);
+      setTimeout(() => {
+        setDailyOrderSuccess(false);
+        setIsDailyMenuModalOpen(false);
+      }, 2000);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al enviar pedido a cocina');
+    } finally {
+      setSendingDailyOrder(false);
+    }
+  };
+
   const totalCartCount = cart.items.reduce((acc, i) => acc + i.quantity, 0);
 
   return (
@@ -160,6 +240,68 @@ export const StoreHome: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {/* Daily Menu Banner Feature if Active */}
+        {dailyMenu && dailyMenu.isActive && (
+          <div className="mb-10 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-black uppercase tracking-wider">
+                  <Flame className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Platos del Día • {dailyMenu.date}</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  {dailyMenu.title}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  {dailyMenu.subtitle || 'Comida casera, fresca y caliente preparada al momento.'}
+                </p>
+                {dailyMenu.soupOrStarter && dailyMenu.includesSoup && (
+                  <div className="inline-flex items-center gap-1.5 text-xs text-amber-300 bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/20 font-medium">
+                    <Soup className="w-3.5 h-3.5" />
+                    <span>Incluye: <strong>{dailyMenu.soupOrStarter}</strong></span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                <button
+                  onClick={() => setIsDailyMenuModalOpen(true)}
+                  className="flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                >
+                  <UtensilsCrossed className="w-4 h-4" />
+                  <span>Elegir Menú del Día</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Preview of available main dishes */}
+            <div className="mt-6 pt-6 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {dailyMenu.mainDishes
+                .filter((d) => d.available)
+                .map((dish) => {
+                  const ves = (dish.priceUSD * currentRate).toFixed(2);
+                  return (
+                    <div
+                      key={dish.id}
+                      onClick={() => {
+                        setSelectedDailyDish(dish);
+                        setIsDailyMenuModalOpen(true);
+                      }}
+                      className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-colors cursor-pointer flex flex-col justify-between"
+                    >
+                      <div className="font-extrabold text-xs text-white truncate">{dish.name}</div>
+                      <div className="flex items-baseline justify-between mt-2 pt-2 border-t border-white/5">
+                        <span className="text-amber-400 font-mono font-extrabold text-sm">${dish.priceUSD.toFixed(2)}</span>
+                        <span className="text-slate-400 font-mono text-[11px] font-bold">~ {ves} Bs</span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
         {/* Search and Category Filter Bar */}
         <div className="space-y-4 mb-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -659,6 +801,258 @@ export const StoreHome: React.FC = () => {
                   <MessageCircle className="w-5 h-5" />
                   <span>Enviar Pedido a WhatsApp</span>
                 </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Daily Menu Customizer Modal */}
+      {isDailyMenuModalOpen && dailyMenu && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black shadow-md">
+                  <UtensilsCrossed className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-base leading-tight">
+                    {dailyMenu.title}
+                  </h3>
+                  <p className="text-[11px] text-amber-400 font-bold">
+                    📅 {dailyMenu.date} • Tasa: {currentRate.toFixed(2)} Bs/$
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsDailyMenuModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Content Body */}
+            <div className="p-6 space-y-5 overflow-y-auto">
+              {dailyOrderSuccess ? (
+                <div className="text-center py-10 space-y-3">
+                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-black text-slate-900">¡Pedido Enviado a Cocina!</h3>
+                  <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                    Tu orden del Menú del Día ya está en cola de preparación en la pantalla de cocina (KDS).
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Sopa / Entrada Banner */}
+                  {dailyMenu.soupOrStarter && dailyMenu.includesSoup && (
+                    <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/70 flex items-center gap-2.5 text-xs text-amber-900">
+                      <Soup className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>
+                        Sopa del día incluida: <strong>{dailyMenu.soupOrStarter}</strong>
+                      </span>
+                    </div>
+                  )}
+
+                  {/* 1. Selección de Plato Principal */}
+                  <div>
+                    <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
+                      1. Selecciona tu Plato Principal *
+                    </label>
+                    <div className="space-y-2">
+                      {dailyMenu.mainDishes
+                        .filter((d) => d.available)
+                        .map((dish) => {
+                          const isSelected = selectedDailyDish?.id === dish.id;
+                          const vesPrice = (dish.priceUSD * currentRate).toFixed(2);
+                          return (
+                            <div
+                              key={dish.id}
+                              onClick={() => setSelectedDailyDish(dish)}
+                              className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                                isSelected
+                                  ? 'bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/30 shadow-xs'
+                                  : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                              }`}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                      isSelected
+                                        ? 'border-amber-600 bg-amber-600'
+                                        : 'border-slate-400'
+                                    }`}
+                                  >
+                                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                  </div>
+                                  <span className="font-extrabold text-xs text-slate-900 truncate">
+                                    {dish.name}
+                                  </span>
+                                </div>
+                                {dish.description && (
+                                  <p className="text-[11px] text-slate-500 mt-0.5 ml-6">
+                                    {dish.description}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-right shrink-0">
+                                <span className="text-sm font-black text-slate-900 font-mono">
+                                  ${dish.priceUSD.toFixed(2)}
+                                </span>
+                                <span className="text-[10px] font-bold text-amber-700 block font-mono">
+                                  {vesPrice} Bs
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+
+                  {/* 2. Selección de Contornos */}
+                  {dailyMenu.sideDishes.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
+                        2. Elige tus Contornos / Guarniciones
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {dailyMenu.sideDishes.map((side) => {
+                          const isChecked = selectedDailySides.includes(side);
+                          return (
+                            <button
+                              key={side}
+                              type="button"
+                              onClick={() => {
+                                if (isChecked) {
+                                  setSelectedDailySides(selectedDailySides.filter((s) => s !== side));
+                                } else {
+                                  setSelectedDailySides([...selectedDailySides, side]);
+                                }
+                              }}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                isChecked
+                                  ? 'bg-slate-900 text-white shadow-xs'
+                                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              }`}
+                            >
+                              {isChecked ? '✓ ' : '+ '}
+                              {side}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. Selección de Bebida */}
+                  {dailyMenu.drinks.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1">
+                        3. Bebida
+                      </label>
+                      <select
+                        value={selectedDailyDrink}
+                        onChange={(e) => setSelectedDailyDrink(e.target.value)}
+                        className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20"
+                      >
+                        {dailyMenu.drinks.map((drink) => (
+                          <option key={drink} value={drink}>
+                            🥤 {drink}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* 4. Modalidad y Datos */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600">
+                      Modalidad
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['AQUÍ', 'LLEVAR', 'DELIVERY'] as const).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setDailyOrderType(type)}
+                          className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                            dailyOrderType === type
+                              ? 'bg-slate-900 text-white shadow-xs'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          {type === 'AQUÍ' ? '🍽️ En Local' : type === 'LLEVAR' ? '🛍️ Para Llevar' : '🛵 Delivery'}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        placeholder="Tu Nombre (Ej: Carlos)"
+                        value={dailyOrderName}
+                        onChange={(e) => setDailyOrderName(e.target.value)}
+                        className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Teléfono / WhatsApp"
+                        value={dailyOrderPhone}
+                        onChange={(e) => setDailyOrderPhone(e.target.value)}
+                        className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono"
+                      />
+                    </div>
+
+                    <textarea
+                      rows={2}
+                      placeholder="Instrucciones especiales (Mesa 2, sin picante, etc.)..."
+                      value={dailyOrderNotes}
+                      onChange={(e) => setDailyOrderNotes(e.target.value)}
+                      className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl resize-none"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            {!dailyOrderSuccess && (
+              <div className="p-5 bg-slate-50 border-t border-slate-100 space-y-3">
+                <div className="flex items-baseline justify-between text-slate-900">
+                  <span className="text-xs font-bold text-slate-600">Total a Pagar:</span>
+                  <div className="text-right">
+                    <span className="text-xl font-black font-mono">
+                      ${selectedDailyDish?.priceUSD.toFixed(2) || '0.00'}
+                    </span>
+                    <span className="text-xs font-extrabold text-amber-700 font-mono ml-2">
+                      (~ {((selectedDailyDish?.priceUSD || 0) * currentRate).toFixed(2)} Bs)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={sendDailyMenuWhatsApp}
+                    className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-xs font-black transition-all shadow-md shadow-emerald-600/20 active:scale-95"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Pedir por WhatsApp</span>
+                  </button>
+
+                  <button
+                    onClick={sendDailyMenuDirectToKitchen}
+                    disabled={sendingDailyOrder}
+                    className="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-2xl text-xs font-black transition-all shadow-md active:scale-95 disabled:opacity-50"
+                  >
+                    <ChefHat className="w-4 h-4 text-amber-400" />
+                    <span>{sendingDailyOrder ? 'Enviando...' : 'Mandar a Cocina'}</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

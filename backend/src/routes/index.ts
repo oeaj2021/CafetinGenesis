@@ -11,6 +11,7 @@ import settingsRoutes from './settings.routes';
 import statsRoutes from './stats.routes';
 import cashShiftRoutes from './cashShift.routes';
 import mobileRoutes from './mobile.routes';
+import dailyMenuRoutes from './dailyMenu.routes';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/settings', settingsRoutes);
 router.use('/stats', statsRoutes);
 router.use('/cash-shifts', cashShiftRoutes);
 router.use('/mobile', mobileRoutes);
+router.use('/daily-menu', dailyMenuRoutes);
 
 export default router;

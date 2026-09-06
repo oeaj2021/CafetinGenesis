@@ -211,3 +211,31 @@ export interface DashboardStats {
     totalUSD: number;
   }[];
 }
+
+export interface DailyMenuItem {
+  id: string;
+  name: string;
+  description?: string;
+  priceUSD: number;
+  available: boolean;
+}
+
+export interface DailyMenuData {
+  id?: string;
+  title: string;
+  date: string;
+  subtitle?: string;
+  chefNote?: string;
+  isActive: boolean;
+  basePriceUSD?: number;
+  soupOrStarter?: string;
+  mainDishes: DailyMenuItem[];
+  sideDishes: string[];
+  drinks: string[];
+  desserts?: string[];
+  includesSoup: boolean;
+  includesDrink: boolean;
+  contactPhone?: string;
+  deliveryAvailable: boolean;
+}
+
