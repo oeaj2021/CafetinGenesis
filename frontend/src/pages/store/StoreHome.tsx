@@ -197,6 +197,8 @@ export const StoreHome: React.FC = () => {
         activeRate={activeRate}
         onOpenCart={() => setIsCartOpen(true)}
         businessName={businessSettings.BUSINESS_NAME}
+        logo={businessSettings.BUSINESS_LOGO}
+        icon={businessSettings.BUSINESS_ICON}
       />
 
       {/* Hero Banner Dinámico con Glassmorphism */}

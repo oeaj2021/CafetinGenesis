@@ -1,31 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Printer, X, CheckCircle2 } from 'lucide-react';
 import { Invoice } from '../../types';
+import { api } from '../../api/client';
+
+interface BusinessInfo {
+  name: string;
+  rif: string;
+  phone: string;
+  address: string;
+  footerNote: string;
+  logo?: string;
+  icon?: string;
+}
 
 interface InvoicePrintModalProps {
   invoice: Invoice | null;
   onClose: () => void;
-  businessInfo?: {
-    name: string;
-    rif: string;
-    phone: string;
-    address: string;
-    footerNote: string;
-  };
+  businessInfo?: Partial<BusinessInfo>;
 }
 
 export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
   invoice,
   onClose,
-  businessInfo = {
-    name: 'Cafetín Génesis',
-    rif: 'J-12345678-9',
-    phone: '584120000000',
-    address: 'Plaza Bolívar, Local 4, Venezuela',
-    footerNote: '¡Gracias por su compra!'
-  }
+  businessInfo: customBusinessInfo
 }) => {
   const [ticketWidth, setTicketWidth] = useState<'80mm' | '58mm'>('80mm');
+  const [fetchedSettings, setFetchedSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const { data } = await api.get('/settings');
+        if (data && typeof data === 'object') {
+          setFetchedSettings(data);
+        }
+      } catch (e) {
+        // Fallback gracefully
+      }
+    };
+    loadSettings();
+  }, []);
+
+  const businessInfo: BusinessInfo = {
+    name: customBusinessInfo?.name || fetchedSettings.BUSINESS_NAME || 'Cafetín Génesis',
+    rif: customBusinessInfo?.rif || fetchedSettings.BUSINESS_RIF || 'J-12345678-9',
+    phone: customBusinessInfo?.phone || fetchedSettings.BUSINESS_PHONE || '584120000000',
+    address: customBusinessInfo?.address || fetchedSettings.BUSINESS_ADDRESS || 'Plaza Bolívar, Local 4, Venezuela',
+    footerNote: customBusinessInfo?.footerNote || fetchedSettings.BUSINESS_FOOTER_NOTE || '¡Gracias por su compra!',
+    logo: customBusinessInfo?.logo || fetchedSettings.BUSINESS_LOGO || '',
+    icon: customBusinessInfo?.icon || fetchedSettings.BUSINESS_ICON || ''
+  };
 
   if (!invoice) return null;
 
@@ -107,6 +131,15 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
         >
           {/* Header */}
           <div className="text-center pb-3 border-b border-dashed border-slate-300">
+            {(businessInfo.logo || businessInfo.icon) && (
+              <div className="flex justify-center mb-2">
+                <img
+                  src={businessInfo.logo || businessInfo.icon}
+                  alt={businessInfo.name}
+                  className="max-h-12 max-w-[150px] object-contain"
+                />
+              </div>
+            )}
             <h2 className="text-sm font-black uppercase tracking-wider">{businessInfo.name}</h2>
             <p className="text-[10px] text-slate-600">RIF: {businessInfo.rif}</p>
             <p className="text-[10px] text-slate-600">{businessInfo.address}</p>

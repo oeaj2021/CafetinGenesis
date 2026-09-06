@@ -25,6 +25,7 @@ import {
   SlidersHorizontal
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { api } from '../../api/client';
 
 interface NavItem {
   name: string;
@@ -87,6 +88,21 @@ export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [businessSettings, setBusinessSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get('/settings');
+        if (data && typeof data === 'object') {
+          setBusinessSettings(data);
+        }
+      } catch (err) {
+        console.error('Error loading business settings for AdminLayout:', err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   // Persistence of collapsed state
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
@@ -125,6 +141,9 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
 
+  const brandName = businessSettings.BUSINESS_NAME || 'Cafetín Génesis';
+  const brandIcon = businessSettings.BUSINESS_ICON || businessSettings.BUSINESS_LOGO;
+
   return (
     <div className="min-h-screen bg-slate-100 flex">
       {/* Sidebar Mobile Backdrop */}
@@ -142,13 +161,21 @@ export const AdminLayout: React.FC = () => {
         }`}
       >
         {/* Brand */}
-        <div className="flex items-center justify-between h-16 px-6 bg-slate-950/50 border-b border-slate-800">
-          <Link to="/admin/dashboard" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-amber-500/20">
-              <Coffee className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-white tracking-wide text-sm">
-              Cafetín Génesis
+        <div className="flex items-center justify-between h-16 px-5 bg-slate-950/50 border-b border-slate-800">
+          <Link to="/admin/dashboard" className="flex items-center gap-2.5 min-w-0">
+            {brandIcon ? (
+              <img
+                src={brandIcon}
+                alt={brandName}
+                className="w-8 h-8 rounded-lg object-contain bg-slate-800 p-0.5 border border-slate-700 shrink-0"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-amber-500/20 shrink-0">
+                <Coffee className="w-5 h-5" />
+              </div>
+            )}
+            <span className="font-bold text-white tracking-wide text-sm truncate">
+              {brandName}
             </span>
           </Link>
           <button
