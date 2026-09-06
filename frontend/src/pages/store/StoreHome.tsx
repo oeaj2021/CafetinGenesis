@@ -199,6 +199,14 @@ export const StoreHome: React.FC = () => {
         businessName={businessSettings.BUSINESS_NAME}
         logo={businessSettings.BUSINESS_LOGO}
         icon={businessSettings.BUSINESS_ICON}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onOpenDailyMenu={dailyMenu && dailyMenu.isActive ? () => setIsDailyMenuModalOpen(true) : undefined}
+        supportPhone={businessSettings.BUSINESS_PHONE}
+        cartTotalUSD={cart.getTotalUSD()}
       />
 
       {/* Hero Banner Dinámico con Glassmorphism */}
@@ -210,7 +218,7 @@ export const StoreHome: React.FC = () => {
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-white text-xs font-bold backdrop-blur-md shadow-lg">
             <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-            <span>Menú Interactivo & Pedidos Directos</span>
+            <span>Catálogo Completo & Pedidos por WhatsApp</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white drop-shadow-sm">
@@ -218,7 +226,7 @@ export const StoreHome: React.FC = () => {
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Cafés de especialidad, desayunos calientes, almuerzos y snacks recién preparados. Haz tu selección y envíala a WhatsApp en un clic.
+            Bolsos y accesorios, medicamentos, víveres, desayunos, cafés y platos recién preparados. Explora nuestros departamentos y haz tu pedido directamente por WhatsApp.
           </p>
 
           {/* Quick Rate info & Location Pill */}
