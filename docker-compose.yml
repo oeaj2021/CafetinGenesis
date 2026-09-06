@@ -22,8 +22,8 @@ services:
     restart: always
     depends_on:
       - postgres
-    ports:
-      - '4000:4000'
+    expose:
+      - '4000'
     environment:
       PORT: 4000
       NODE_ENV: production
@@ -57,8 +57,8 @@ services:
     restart: always
     depends_on:
       - backend
-    ports:
-      - '3000:80'
+    expose:
+      - '80'
     networks:
       - genesis-net
 
