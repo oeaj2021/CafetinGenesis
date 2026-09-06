@@ -11,7 +11,6 @@ import {
   Image,
   Upload,
   Trash2,
-  Sparkles,
   Coffee
 } from 'lucide-react';
 import { api } from '../../api/client';
@@ -22,7 +21,14 @@ export const Settings: React.FC = () => {
     BUSINESS_NAME: 'Cafetín Génesis',
     BUSINESS_RIF: 'J-12345678-9',
     BUSINESS_PHONE: '584120000000',
+    BUSINESS_PHONE_2: '',
+    BUSINESS_EMAIL: 'contacto@cafetingenesis.com',
     BUSINESS_ADDRESS: 'Plaza Bolívar, Local 4, Venezuela',
+    BUSINESS_MAPS_COORDS: '10.4806, -66.9036',
+    BUSINESS_MAPS_URL: '',
+    BUSINESS_SCHEDULE: 'Lunes a Sábado: 7:00 AM - 8:00 PM | Domingos: 8:00 AM - 4:00 PM',
+    BUSINESS_INSTAGRAM: '',
+    BUSINESS_ABOUT: 'Somos tu tienda comercial y cafetín de confianza. Ofrecemos variedad en bolsos y accesorios, medicamentos esenciales, alimentos, abarrotes y café de la más alta calidad con la mejor atención.',
     BUSINESS_FOOTER_NOTE: '¡Gracias por su compra! Vuelva pronto.',
     THEME_COLOR: 'amber',
     BUSINESS_LOGO: '',
@@ -100,35 +106,34 @@ export const Settings: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
-          <Sparkles className="w-6 h-6 text-amber-600" />
-          Configuración del Sistema & Marca
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Carga el logo, ícono de la marca, paleta de colores, datos fiscales y números de atención de WhatsApp
-        </p>
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            Configuración del Sistema
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Personaliza la identidad visual, datos comerciales, ubicación en mapa y canales de contacto
+          </p>
+        </div>
+        {saved && (
+          <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-2xl text-xs font-bold border border-emerald-200 animate-in fade-in">
+            <CheckCircle className="w-4 h-4" />
+            <span>Configuración Guardada</span>
+          </div>
+        )}
       </div>
 
-      {saved && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle className="w-4 h-4 text-emerald-600" />
-          <span>¡Configuraciones, logos e identidad de marca guardadas exitosamente!</span>
-        </div>
-      )}
-
-      {/* Sección de Carga de Logo & Ícono de la Marca */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-6">
+      {/* Sección 1: Identidad Visual & Logos */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
         <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
           <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
             <Image className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-extrabold text-slate-900 text-sm">Logotipo e Ícono de la Marca</h3>
-            <p className="text-xs text-slate-500">
-              Personaliza el logotipo que aparece en el catálogo, tickets, flyers de WhatsApp y el ícono de la app
-            </p>
+            <h3 className="font-extrabold text-slate-900 text-sm">Logo & Ícono de la Marca</h3>
+            <p className="text-xs text-slate-500">Imágenes que identifican a la empresa en tickets, portal y panel</p>
           </div>
         </div>
 
@@ -138,7 +143,7 @@ export const Settings: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
-                  Logo Principal (Header / Flyers)
+                  Logo Principal (Tienda & Tickets)
                 </label>
                 {settings.BUSINESS_LOGO && (
                   <button
@@ -329,107 +334,236 @@ export const Settings: React.FC = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
-        <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-          <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-            <Store className="w-5 h-5" />
+      <form onSubmit={handleSave} className="space-y-6">
+        {/* Información Comercial, Fiscal y Resumen Acerca de la Empresa */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+              <Store className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm">Información Comercial & Acerca de la Empresa</h3>
+              <p className="text-xs text-slate-500">Datos públicos, resumen descriptivo e identificación legal</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-extrabold text-slate-900 text-sm">Información Comercial & Fiscal</h3>
-            <p className="text-xs text-slate-500">Datos mostrados en tickets, facturas y portal virtual</p>
-          </div>
-        </div>
 
-        <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-            Nombre del Negocio / Tienda *
-          </label>
-          <div className="relative">
-            <Store className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              required
-              value={settings.BUSINESS_NAME}
-              onChange={(e) => setSettings({ ...settings, BUSINESS_NAME: e.target.value })}
-              className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold"
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                Nombre del Negocio / Tienda *
+              </label>
+              <div className="relative">
+                <Store className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  required
+                  value={settings.BUSINESS_NAME}
+                  onChange={(e) => setSettings({ ...settings, BUSINESS_NAME: e.target.value })}
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                RIF del Negocio *
+              </label>
+              <div className="relative">
+                <FileText className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  required
+                  value={settings.BUSINESS_RIF}
+                  onChange={(e) => setSettings({ ...settings, BUSINESS_RIF: e.target.value })}
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+              Resumen / Acerca de la Empresa (Sección "Sobre Nosotros" del Portal)
+            </label>
+            <textarea
+              rows={3}
+              value={settings.BUSINESS_ABOUT}
+              onChange={(e) => setSettings({ ...settings, BUSINESS_ABOUT: e.target.value })}
+              placeholder="Escribe un resumen sobre tu empresa, historia, catálogo de productos y valores..."
+              className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl resize-none focus:bg-white transition-colors"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-              RIF del Negocio *
-            </label>
-            <div className="relative">
-              <FileText className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        {/* Contactos, Horarios y Redes */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+              <Phone className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm">Canales de Contacto & Atención</h3>
+              <p className="text-xs text-slate-500">Números telefónicos, correo electrónico y horarios para los clientes</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                WhatsApp Principal (Para Pedidos) *
+              </label>
+              <div className="relative">
+                <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  required
+                  placeholder="584120000000"
+                  value={settings.BUSINESS_PHONE}
+                  onChange={(e) => setSettings({ ...settings, BUSINESS_PHONE: e.target.value })}
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold"
+                />
+              </div>
+              <p className="text-[10px] text-slate-400 mt-1">Código de país + número sin espacios (ej: 584120000000)</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                Teléfono Secundario / Alternativo (Opcional)
+              </label>
               <input
                 type="text"
-                required
-                value={settings.BUSINESS_RIF}
-                onChange={(e) => setSettings({ ...settings, BUSINESS_RIF: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold"
+                placeholder="Ej: 0212-0000000 o 584240000000"
+                value={settings.BUSINESS_PHONE_2}
+                onChange={(e) => setSettings({ ...settings, BUSINESS_PHONE_2: e.target.value })}
+                className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                Correo Electrónico de Contacto
+              </label>
+              <input
+                type="email"
+                placeholder="contacto@miempresa.com"
+                value={settings.BUSINESS_EMAIL}
+                onChange={(e) => setSettings({ ...settings, BUSINESS_EMAIL: e.target.value })}
+                className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                Instagram / Red Social
+              </label>
+              <input
+                type="text"
+                placeholder="@tuempresa"
+                value={settings.BUSINESS_INSTAGRAM}
+                onChange={(e) => setSettings({ ...settings, BUSINESS_INSTAGRAM: e.target.value })}
+                className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
               />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-              WhatsApp para Recibir Pedidos *
+              Horario de Atención
             </label>
-            <div className="relative">
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                required
-                placeholder="584120000000"
-                value={settings.BUSINESS_PHONE}
-                onChange={(e) => setSettings({ ...settings, BUSINESS_PHONE: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold"
-              />
-            </div>
-            <p className="text-[10px] text-slate-400 mt-1">Código de país + número sin espacios (ej: 584149998877)</p>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-            Dirección Física
-          </label>
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              value={settings.BUSINESS_ADDRESS}
-              onChange={(e) => setSettings({ ...settings, BUSINESS_ADDRESS: e.target.value })}
-              className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              placeholder="Lunes a Sábado: 7:00 AM - 8:00 PM | Domingos: 8:00 AM - 4:00 PM"
+              value={settings.BUSINESS_SCHEDULE}
+              onChange={(e) => setSettings({ ...settings, BUSINESS_SCHEDULE: e.target.value })}
+              className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-            Pie de Factura / Mensaje de Agradecimiento
-          </label>
-          <input
-            type="text"
-            value={settings.BUSINESS_FOOTER_NOTE}
-            onChange={(e) => setSettings({ ...settings, BUSINESS_FOOTER_NOTE: e.target.value })}
-            className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
-          />
+        {/* Ubicación & Coordenadas Google Maps */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm">Ubicación & Coordenadas de Google Maps</h3>
+              <p className="text-xs text-slate-500">Dirección y geolocalización para mapa interactivo en el portal público</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+              Dirección Física Completa
+            </label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Calle, Centro Comercial, Local, Ciudad, Estado"
+                value={settings.BUSINESS_ADDRESS}
+                onChange={(e) => setSettings({ ...settings, BUSINESS_ADDRESS: e.target.value })}
+                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                Coordenadas GPS Google Maps (Latitud, Longitud)
+              </label>
+              <input
+                type="text"
+                placeholder="Ej: 10.4806, -66.9036"
+                value={settings.BUSINESS_MAPS_COORDS}
+                onChange={(e) => setSettings({ ...settings, BUSINESS_MAPS_COORDS: e.target.value })}
+                className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Copia las coordenadas desde Google Maps (ej: 10.4806, -66.9036)</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                Enlace Directo de Google Maps (Opcional)
+              </label>
+              <input
+                type="text"
+                placeholder="https://maps.app.goo.gl/... o https://goo.gl/maps/..."
+                value={settings.BUSINESS_MAPS_URL}
+                onChange={(e) => setSettings({ ...settings, BUSINESS_MAPS_URL: e.target.value })}
+                className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Link para abrir directo en la App de Google Maps</p>
+            </div>
+          </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-100 flex justify-end">
-          <button
-            type="submit"
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-7 py-3 rounded-2xl text-xs font-extrabold shadow-lg transition-all active:scale-95"
-          >
-            <Save className="w-4 h-4" />
-            <span>Guardar Configuración General</span>
-          </button>
+        {/* Facturación y Mensajes */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+              Pie de Factura / Mensaje de Agradecimiento
+            </label>
+            <input
+              type="text"
+              value={settings.BUSINESS_FOOTER_NOTE}
+              onChange={(e) => setSettings({ ...settings, BUSINESS_FOOTER_NOTE: e.target.value })}
+              className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+            />
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex justify-end">
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-7 py-3 rounded-2xl text-xs font-extrabold shadow-lg transition-all active:scale-95"
+            >
+              <Save className="w-4 h-4" />
+              <span>Guardar Configuración General</span>
+            </button>
+          </div>
         </div>
       </form>
     </div>
   );
 };
-

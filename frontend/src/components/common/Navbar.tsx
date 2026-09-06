@@ -19,7 +19,9 @@ import {
   Tag,
   Layers,
   Flame,
-  ChefHat
+  ChefHat,
+  MapPin,
+  Info
 } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { Category, ExchangeRate } from '../../types';
@@ -240,6 +242,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
+            {/* About & Location Shortcut */}
+            <a
+              href="#sobre-nosotros"
+              className="hidden xl:inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-3 py-2 rounded-xl text-xs font-bold transition-all"
+            >
+              <MapPin className="w-3.5 h-3.5 text-amber-500" />
+              <span>Nosotros & Ubicación</span>
+            </a>
+
             {/* Cart Button with Counter and Amount */}
             <button
               onClick={onOpenCart}
@@ -435,6 +446,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
           )}
+
+          {/* About & Location Mobile Button */}
+          <a
+            href="#sobre-nosotros"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-full flex items-center justify-between p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-amber-600" />
+              <span>Acerca de la Empresa & Ubicación</span>
+            </div>
+            <Info className="w-4 h-4 text-slate-400" />
+          </a>
 
           {/* WhatsApp Direct Support Button Mobile */}
           <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
