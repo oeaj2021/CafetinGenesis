@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -16,9 +16,69 @@ import {
   Menu,
   X,
   Coffee,
-  ChefHat
+  ChefHat,
+  ChevronDown,
+  ChevronRight,
+  Boxes,
+  WalletCards,
+  SlidersHorizontal
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ElementType;
+}
+
+interface NavSection {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    id: 'operaciones',
+    title: 'Operaciones & Ventas',
+    icon: Boxes,
+    items: [
+      { name: 'Punto de Venta / POS', href: '/admin/pos', icon: ShoppingCart },
+      { name: 'Cocina & Baristas (KDS)', href: '/admin/cocina', icon: ChefHat },
+      { name: 'Caja & Arqueo', href: '/admin/caja', icon: Vault },
+      { name: 'Facturación / Recibos', href: '/admin/invoices', icon: Receipt },
+    ],
+  },
+  {
+    id: 'inventario',
+    title: 'Inventario & Proveedores',
+    icon: Package,
+    items: [
+      { name: 'Inventario & Productos', href: '/admin/inventory', icon: Package },
+      { name: 'Compras de Mercancía', href: '/admin/purchases', icon: Truck },
+    ],
+  },
+  {
+    id: 'finanzas',
+    title: 'Clientes & Finanzas',
+    icon: WalletCards,
+    items: [
+      { name: 'Cuentas por Cobrar (Fiados)', href: '/admin/debts', icon: CreditCard },
+      { name: 'Clientes', href: '/admin/clients', icon: Users },
+    ],
+  },
+  {
+    id: 'sistema',
+    title: 'Administración & Control',
+    icon: SlidersHorizontal,
+    items: [
+      { name: 'Dashboard General', href: '/admin/dashboard', icon: LayoutDashboard },
+      { name: 'Tasas de Cambio', href: '/admin/rates', icon: DollarSign },
+      { name: 'Configuración Global', href: '/admin/settings', icon: Settings },
+    ],
+  },
+];
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -26,19 +86,37 @@ export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuthStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Punto de Venta / POS', href: '/admin/pos', icon: ShoppingCart },
-    { name: 'Cocina & Baristas (KDS)', href: '/admin/cocina', icon: ChefHat },
-    { name: 'Caja & Arqueo', href: '/admin/caja', icon: Vault },
-    { name: 'Facturación / Recibos', href: '/admin/invoices', icon: Receipt },
-    { name: 'Compras de Mercancía', href: '/admin/purchases', icon: Truck },
-    { name: 'Inventario & Productos', href: '/admin/inventory', icon: Package },
-    { name: 'Cuentas por Cobrar (Fiados)', href: '/admin/debts', icon: CreditCard },
-    { name: 'Clientes', href: '/admin/clients', icon: Users },
-    { name: 'Tasas de Cambio', href: '/admin/rates', icon: DollarSign },
-    { name: 'Configuración', href: '/admin/settings', icon: Settings },
-  ];
+  // Persistence of collapsed state
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('genesis_sidebar_collapsed');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Ensure active route section is automatically expanded
+  useEffect(() => {
+    const activeSection = NAV_SECTIONS.find((section) =>
+      section.items.some((item) => item.href === location.pathname)
+    );
+    if (activeSection && collapsedSections[activeSection.id]) {
+      setCollapsedSections((prev) => {
+        const next = { ...prev, [activeSection.id]: false };
+        localStorage.setItem('genesis_sidebar_collapsed', JSON.stringify(next));
+        return next;
+      });
+    }
+  }, [location.pathname]);
+
+  const toggleSection = (sectionId: string) => {
+    setCollapsedSections((prev) => {
+      const next = { ...prev, [sectionId]: !prev[sectionId] };
+      localStorage.setItem('genesis_sidebar_collapsed', JSON.stringify(next));
+      return next;
+    });
+  };
 
   const handleLogout = () => {
     logout();
@@ -64,7 +142,7 @@ export const AdminLayout: React.FC = () => {
         {/* Brand */}
         <div className="flex items-center justify-between h-16 px-6 bg-slate-950/50 border-b border-slate-800">
           <Link to="/admin/dashboard" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold">
+            <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-amber-500/20">
               <Coffee className="w-5 h-5" />
             </div>
             <span className="font-bold text-white tracking-wide text-sm">
@@ -79,24 +157,68 @@ export const AdminLayout: React.FC = () => {
           </button>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
+        {/* Navigation Sections */}
+        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto custom-scrollbar">
+          {NAV_SECTIONS.map((section) => {
+            const isCollapsed = !!collapsedSections[section.id];
+            const hasActiveChild = section.items.some(
+              (item) => item.href === location.pathname
+            );
+            const SectionIcon = section.icon;
+
             return (
-              <Link
-                key={item.name}
-                to={item.href}
-                onClick={() => setIsSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <item.icon className="w-4 h-4 shrink-0" />
-                <span>{item.name}</span>
-              </Link>
+              <div key={section.id} className="space-y-1">
+                {/* Section Header */}
+                <button
+                  type="button"
+                  onClick={() => toggleSection(section.id)}
+                  className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors select-none ${
+                    hasActiveChild
+                      ? 'text-amber-400/90 hover:bg-slate-800/60'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <SectionIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="truncate text-[11px]">{section.title}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-normal px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                      {section.items.length}
+                    </span>
+                    {isCollapsed ? (
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Section Items */}
+                {!isCollapsed && (
+                  <div className="space-y-1 pl-1 pt-0.5 animate-fadeIn">
+                    {section.items.map((item) => {
+                      const isActive = location.pathname === item.href;
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.name}
+                          to={item.href}
+                          onClick={() => setIsSidebarOpen(false)}
+                          className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                            isActive
+                              ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
+                              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                          <span className="truncate">{item.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
