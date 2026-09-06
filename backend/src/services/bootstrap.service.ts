@@ -1,20 +1,21 @@
 import { prisma } from '../config/prisma';
 import bcrypt from 'bcryptjs';
+import { ENV } from '../config/env';
 
 export const bootstrapDatabase = async (): Promise<void> => {
   try {
     // 1. Verificar si existen usuarios
     const userCount = await prisma.user.count();
     if (userCount === 0) {
-      console.log('🔄 [Bootstrap] Inicializando usuarios maestros por defecto...');
-      const adminPassword = await bcrypt.hash('admin123', 10);
-      const cajeroPassword = await bcrypt.hash('cajero123', 10);
+      console.log('🔄 [Bootstrap] Inicializando usuarios maestros desde variables de entorno...');
+      const adminPassword = await bcrypt.hash(ENV.INITIAL_ADMIN_PASSWORD, 10);
+      const cajeroPassword = await bcrypt.hash(ENV.INITIAL_CASHIER_PASSWORD, 10);
 
       await prisma.user.create({
         data: {
-          email: 'admin@genesis.com',
-          username: 'admin',
-          name: 'Administrador Principal',
+          email: ENV.INITIAL_ADMIN_EMAIL,
+          username: ENV.INITIAL_ADMIN_USERNAME,
+          name: ENV.INITIAL_ADMIN_NAME,
           password: adminPassword,
           role: 'ADMIN'
         }
@@ -22,14 +23,14 @@ export const bootstrapDatabase = async (): Promise<void> => {
 
       await prisma.user.create({
         data: {
-          email: 'cajero@genesis.com',
-          username: 'cajero',
-          name: 'Cajero / Atención',
+          email: ENV.INITIAL_CASHIER_EMAIL,
+          username: ENV.INITIAL_CASHIER_USERNAME,
+          name: ENV.INITIAL_CASHIER_NAME,
           password: cajeroPassword,
           role: 'OPERATOR'
         }
       });
-      console.log('✅ [Bootstrap] Usuarios creados: admin@genesis.com / cajero@genesis.com');
+      console.log(`✅ [Bootstrap] Usuarios creados: ${ENV.INITIAL_ADMIN_EMAIL} / ${ENV.INITIAL_CASHIER_EMAIL}`);
     }
 
     // 2. Verificar tasa de cambio activa

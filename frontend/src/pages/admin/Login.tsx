@@ -5,8 +5,8 @@ import { api } from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 
 export const Login: React.FC = () => {
-  const [identifier, setIdentifier] = useState('admin@genesis.com');
-  const [password, setPassword] = useState('admin123');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -27,14 +27,14 @@ export const Login: React.FC = () => {
       setAuth(response.data.user, response.data.token);
       navigate('/admin/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+      setError(err.response?.data?.message || 'Credenciales incorrectas');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-amber-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-slate-100">
         {/* Brand Icon */}
         <div className="text-center mb-8">
@@ -64,7 +64,7 @@ export const Login: React.FC = () => {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="admin@genesis.com"
+                placeholder="Ingresa tu usuario o correo"
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
               />
             </div>
@@ -92,17 +92,12 @@ export const Login: React.FC = () => {
             disabled={loading}
             className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95 disabled:opacity-50 mt-2"
           >
-            <span>{loading ? 'Accediendo...' : 'Iniciar Sesión'}</span>
+            <span>{loading ? 'Verificando...' : 'Iniciar Sesión'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        <div className="mt-8 pt-4 border-t border-slate-100 text-center">
-          <p className="text-[11px] text-slate-400">
-            Credenciales por defecto: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">admin@genesis.com / admin123</code>
-          </p>
-        </div>
       </div>
     </div>
   );
 };
+

@@ -30,6 +30,14 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-genesis_user}:${POSTGRES_PASSWORD:-genesis_pass}@postgres:5432/${POSTGRES_DB:-genesis_db}?schema=public
       JWT_SECRET: ${JWT_SECRET:-genesis_super_secret_jwt_key_dokploy_2026}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-admin@genesis.com}
+      INITIAL_ADMIN_USERNAME: ${INITIAL_ADMIN_USERNAME:-admin}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-admin123}
+      INITIAL_ADMIN_NAME: ${INITIAL_ADMIN_NAME:-Administrador Principal}
+      INITIAL_CASHIER_EMAIL: ${INITIAL_CASHIER_EMAIL:-cajero@genesis.com}
+      INITIAL_CASHIER_USERNAME: ${INITIAL_CASHIER_USERNAME:-cajero}
+      INITIAL_CASHIER_PASSWORD: ${INITIAL_CASHIER_PASSWORD:-cajero123}
+      INITIAL_CASHIER_NAME: ${INITIAL_CASHIER_NAME:-Cajero / Atencion}
       DOLARVZLA_API_KEY: ${DOLARVZLA_API_KEY:-9e6461acff8c6e405a9db8688426e291cae064f0eb491cb549d1c97239324035}
       DOLARVZLA_BCV_URL: ${DOLARVZLA_BCV_URL:-https://rates.dolarvzla.com/bcv/current.json}
       DOLARVZLA_FALLBACK_URL: ${DOLARVZLA_FALLBACK_URL:-https://api.dolarvzla.com/public/usdt/exchange-rate}

@@ -12,6 +12,16 @@ export const ENV = {
   JWT_SECRET: process.env.JWT_SECRET || 'genesis_dev_secret_jwt_key_2026',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
 
+  // Initial System Credentials (Configurable via .env)
+  INITIAL_ADMIN_EMAIL: process.env.INITIAL_ADMIN_EMAIL || 'admin@genesis.com',
+  INITIAL_ADMIN_USERNAME: process.env.INITIAL_ADMIN_USERNAME || 'admin',
+  INITIAL_ADMIN_PASSWORD: process.env.INITIAL_ADMIN_PASSWORD || 'admin123',
+  INITIAL_ADMIN_NAME: process.env.INITIAL_ADMIN_NAME || 'Administrador Principal',
+  INITIAL_CASHIER_EMAIL: process.env.INITIAL_CASHIER_EMAIL || 'cajero@genesis.com',
+  INITIAL_CASHIER_USERNAME: process.env.INITIAL_CASHIER_USERNAME || 'cajero',
+  INITIAL_CASHIER_PASSWORD: process.env.INITIAL_CASHIER_PASSWORD || 'cajero123',
+  INITIAL_CASHIER_NAME: process.env.INITIAL_CASHIER_NAME || 'Cajero / Atención',
+
   // Rates & Monitor DolarVzla
   DOLARVZLA_API_KEY: process.env.DOLARVZLA_API_KEY || '9e6461acff8c6e405a9db8688426e291cae064f0eb491cb549d1c97239324035',
   DOLARVZLA_BCV_URL: process.env.DOLARVZLA_BCV_URL || 'https://rates.dolarvzla.com/bcv/current.json',
