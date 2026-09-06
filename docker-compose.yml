@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: genesis-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-genesis_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-genesis_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-genesis_db}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - genesis-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: genesis-backend
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-genesis_user}:${POSTGRES_PASSWORD:-genesis_pass}@postgres:5432/${POSTGRES_DB:-genesis_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-genesis_super_secret_jwt_key_dokploy_2026}
+    networks:
+      - genesis-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: genesis-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - '80:80'
+    networks:
+      - genesis-net
+
+volumes:
+  pgdata:
+
+networks:
+  genesis-net:
+    driver: bridge

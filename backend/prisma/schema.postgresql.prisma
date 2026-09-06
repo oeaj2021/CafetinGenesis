@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  name      String
+  role      String   @default("OPERATOR")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id            String         @id @default(uuid())
+  name          String
+  barcode       String?
+  description   String?
+  categoryId    String
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  costUSD       Float          @default(0.0)
+  priceUSD      Float
+  stock         Int            @default(0)
+  minStock      Int            @default(5)
+  image         String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  invoiceItems  InvoiceItem[]
+  purchaseItems PurchaseItem[]
+}
+
+model ExchangeRate {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  rate      Float
+  symbol    String   @default("VES")
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  name      String
+  idNumber  String    @unique
+  phone     String
+  address   String?
+  email     String?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  debts     Debt[]
+  invoices  Invoice[]
+}
+
+model Invoice {
+  id               String        @id @default(uuid())
+  invoiceNumber    String        @unique
+  clientId         String?
+  client           Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientName       String
+  clientIdNumber   String
+  clientPhone      String?
+  subtotalUSD      Float
+  totalUSD         Float
+  exchangeRate     Float
+  totalVES         Float
+  paymentMethod    String        @default("CASH_USD")
+  paymentStatus    String        @default("PAID")
+  amountPaidUSD    Float?        @default(0.0)
+  changeUSD        Float?        @default(0.0)
+  paymentBreakdown String?
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  items            InvoiceItem[]
+  debt             Debt?
+}
+
+model InvoiceItem {
+  id           String   @id @default(uuid())
+  invoiceId    String
+  invoice      Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName  String
+  quantity     Int
+  unitPriceUSD Float
+  unitPriceVES Float
+  totalUSD     Float
+  totalVES     Float
+}
+
+model Purchase {
+  id             String         @id @default(uuid())
+  purchaseNumber String         @unique
+  supplierName   String
+  supplierRif    String?
+  totalUSD       Float
+  exchangeRate   Float
+  totalVES       Float
+  paymentMethod  String         @default("CASH_USD")
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  items          PurchaseItem[]
+}
+
+model PurchaseItem {
+  id          String   @id @default(uuid())
+  purchaseId  String
+  purchase    Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String
+  quantity    Int
+  unitCostUSD Float
+  unitCostVES Float
+  totalUSD    Float
+  totalVES    Float
+}
+
+model Debt {
+  id           String        @id @default(uuid())
+  clientId     String
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  invoiceId    String?       @unique
+  invoice      Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  totalUSD     Float
+  totalVES     Float
+  remainingUSD Float
+  remainingVES Float
+  status       String        @default("PENDING")
+  description  String?
+  dueDate      DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  payments     DebtPayment[]
+}
+
+model DebtPayment {
+  id            String   @id @default(uuid())
+  debtId        String
+  debt          Debt     @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  amountUSD     Float
+  amountVES     Float
+  exchangeRate  Float
+  paymentMethod String   @default("CASH_USD")
+  reference     String?
+  note          String?
+  createdAt     DateTime @default(now())
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CashShift {
+  id              String    @id @default(uuid())
+  cashierId       String
+  cashierName     String
+  status          String    @default("OPEN")
+  initialCashUSD  Float     @default(0.0)
+  initialCashVES  Float     @default(0.0)
+  closedCashUSD   Float?
+  closedCashVES   Float?
+  expectedCashUSD Float?
+  expectedCashVES Float?
+  differenceUSD   Float?
+  differenceVES   Float?
+  totalSalesUSD   Float     @default(0.0)
+  totalSalesVES   Float     @default(0.0)
+  notes           String?
+  openedAt        DateTime  @default(now())
+  closedAt        DateTime?
+}

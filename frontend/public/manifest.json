@@ -1,0 +1,35 @@
+{
+  "name": "Cafetín Génesis - POS & Gestión",
+  "short_name": "Génesis POS",
+  "description": "Sistema de Punto de Venta, Cocina, Caja y Facturación para Cafeterías",
+  "start_url": "/admin/pos",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23f59e0b'><rect width='512' height='512' rx='128' fill='%230f172a'/><path d='M384 192h16c35.3 0 64 28.7 64 64s-28.7 64-64 64h-16M64 192h320v144c0 35.3-28.7 64-64 64H128c-35.3 0-64-28.7-64-64V192zm64-96v48m64-48v48m64-48v48' stroke='%23f59e0b' stroke-width='32' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Punto de Venta",
+      "url": "/admin/pos",
+      "description": "Abrir caja y facturar"
+    },
+    {
+      "name": "Pantalla de Cocina",
+      "url": "/admin/cocina",
+      "description": "Ver comandas en preparación"
+    },
+    {
+      "name": "Arqueo de Caja",
+      "url": "/admin/caja",
+      "description": "Control de turnos y saldo"
+    }
+  ]
+}

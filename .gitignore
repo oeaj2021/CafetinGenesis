@@ -1,0 +1,77 @@
+# ==========================================
+# Dependencies & Package Managers
+# ==========================================
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+
+# ==========================================
+# Build & Distribution Artifacts
+# ==========================================
+dist/
+**/dist/
+build/
+**/build/
+out/
+.output/
+.turbo/
+.cache/
+
+# ==========================================
+# Environment Variables & Secrets (CRITICAL)
+# ==========================================
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*.cert
+*.crt
+id_rsa*
+*.pfx
+
+# ==========================================
+# Databases & Persistence Data
+# ==========================================
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+prisma/*.db
+prisma/*.db-journal
+backend/prisma/*.db
+backend/prisma/*.db-journal
+pgdata/
+**/pgdata/
+data/
+**/data/
+
+# ==========================================
+# Logs & Debugging Files
+# ==========================================
+logs/
+**/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# ==========================================
+# Testing & Coverage
+# ==========================================
+coverage/
+**/coverage/
+
+# ==========================================
+# OS & System Files
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
