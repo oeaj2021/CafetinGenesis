@@ -322,11 +322,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => onSelectCategory(cat.id)}
                   className={`px-3 py-1 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-slate-900 text-white shadow-xs font-bold'
+                      ? 'bg-amber-500 text-slate-950 shadow-xs font-black'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
-                  <IconComp className={`w-3.5 h-3.5 ${isSelected ? 'text-amber-400' : 'text-slate-400'}`} />
+                  <IconComp className={`w-3.5 h-3.5 ${isSelected ? 'text-slate-950' : 'text-slate-400'}`} />
                   <span>{cat.name}</span>
                   {cat._count?.products !== undefined && (
                     <span

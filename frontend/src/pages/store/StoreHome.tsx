@@ -219,13 +219,14 @@ export const StoreHome: React.FC = () => {
       />
 
       {/* Hero Banner Dinámico con Glassmorphism */}
-      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-b border-amber-500/20">
         {/* Glow Effects */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-white text-xs font-bold backdrop-blur-md shadow-lg">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold backdrop-blur-md shadow-lg">
             <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
             <span>Catálogo Completo & Pedidos por WhatsApp</span>
           </div>
@@ -371,12 +372,12 @@ export const StoreHome: React.FC = () => {
               onClick={() => setSelectedCategory('ALL')}
               className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                 selectedCategory === 'ALL'
-                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-[1.02]'
-                  : 'bg-white text-slate-600 hover:bg-slate-100/80 border border-slate-200'
+                  ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 scale-[1.02]'
+                  : 'bg-white text-slate-600 hover:bg-amber-50/50 hover:text-amber-900 border border-slate-200'
               }`}
             >
               <span>Todos</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${selectedCategory === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${selectedCategory === 'ALL' ? 'bg-slate-950/15 text-slate-950 font-black' : 'bg-slate-100 text-slate-500'}`}>
                 {products.length}
               </span>
             </button>
@@ -389,12 +390,12 @@ export const StoreHome: React.FC = () => {
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-[1.02]'
-                      : 'bg-white text-slate-600 hover:bg-slate-100/80 border border-slate-200'
+                      ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 scale-[1.02]'
+                      : 'bg-white text-slate-600 hover:bg-amber-50/50 hover:text-amber-900 border border-slate-200'
                   }`}
                 >
                   <span>{cat.name}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-slate-950/15 text-slate-950 font-black' : 'bg-slate-100 text-slate-500'}`}>
                     {count}
                   </span>
                 </button>
@@ -536,7 +537,7 @@ export const StoreHome: React.FC = () => {
                           <button
                             disabled={isOutOfStock}
                             onClick={() => cart.addItem(product)}
-                            className="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-40 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-md active:scale-95"
+                            className="flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black disabled:opacity-40 py-2.5 rounded-2xl text-xs transition-all shadow-md shadow-amber-500/20 active:scale-95"
                           >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Agregar</span>
@@ -545,9 +546,9 @@ export const StoreHome: React.FC = () => {
                           <button
                             disabled={isOutOfStock}
                             onClick={() => sendSingleProductWhatsApp(product)}
-                            className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-40 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20 active:scale-95"
+                            className="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-40 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-md active:scale-95"
                           >
-                            <MessageCircle className="w-3.5 h-3.5" />
+                            <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                             <span>WhatsApp</span>
                           </button>
                         </div>
