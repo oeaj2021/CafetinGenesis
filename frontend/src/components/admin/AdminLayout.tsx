@@ -22,7 +22,8 @@ import {
   ChevronRight,
   Boxes,
   WalletCards,
-  SlidersHorizontal
+  SlidersHorizontal,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { api } from '../../api/client';
@@ -77,6 +78,7 @@ const NAV_SECTIONS: NavSection[] = [
     icon: SlidersHorizontal,
     items: [
       { name: 'Dashboard General', href: '/admin/dashboard', icon: LayoutDashboard },
+      { name: 'Usuarios & Roles', href: '/admin/users', icon: ShieldCheck },
       { name: 'Tasas de Cambio', href: '/admin/rates', icon: DollarSign },
       { name: 'Configuración Global', href: '/admin/settings', icon: Settings },
     ],

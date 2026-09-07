@@ -12,10 +12,12 @@ import statsRoutes from './stats.routes';
 import cashShiftRoutes from './cashShift.routes';
 import mobileRoutes from './mobile.routes';
 import dailyMenuRoutes from './dailyMenu.routes';
+import usersRoutes from './users.routes';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
+router.use('/users', usersRoutes);
 router.use('/rates', ratesRoutes);
 router.use('/products', productsRoutes);
 router.use('/categories', categoriesRoutes);

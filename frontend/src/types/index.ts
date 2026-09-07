@@ -3,7 +3,9 @@ export interface User {
   email: string;
   username: string;
   name: string;
-  role: 'ADMIN' | 'OPERATOR';
+  role: 'ADMIN' | 'OPERATOR' | 'CASHIER' | 'KITCHEN';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Category {
