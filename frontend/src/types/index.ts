@@ -218,6 +218,7 @@ export interface DailyMenuItem {
   description?: string;
   priceUSD: number;
   available: boolean;
+  image?: string;
 }
 
 export interface DailyMenuData {
@@ -226,9 +227,11 @@ export interface DailyMenuData {
   date: string;
   subtitle?: string;
   chefNote?: string;
+  bannerImage?: string;
   isActive: boolean;
   basePriceUSD?: number;
   soupOrStarter?: string;
+  soupImage?: string;
   mainDishes: DailyMenuItem[];
   sideDishes: string[];
   drinks: string[];

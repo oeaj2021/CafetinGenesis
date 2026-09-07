@@ -17,7 +17,10 @@ import {
   Cake,
   Flame,
   Clock,
-  Phone
+  Phone,
+  Camera,
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { toPng, toBlob } from 'html-to-image';
 import { api } from '../../api/client';
@@ -110,6 +113,43 @@ export const DailyMenu: React.FC = () => {
     }
   };
 
+  // Dish Image Handlers
+  const handleDishImageUpload = (id: string, file: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen válido (JPG, PNG, WebP).');
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      alert('La imagen no debe superar los 3 MB para garantizar un rendimiento óptimo.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      updateMainDish(id, 'image', base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSoupImageUpload = (file: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen válido.');
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      alert('La imagen no debe superar los 3 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setMenu((prev) => ({ ...prev, soupImage: base64 }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Main Dish Handlers
   const addMainDish = () => {
     const newDish: DailyMenuItem = {
@@ -117,7 +157,8 @@ export const DailyMenu: React.FC = () => {
       name: 'Nuevo Plato Especial',
       description: 'Descripción e ingredientes del plato',
       priceUSD: 5.0,
-      available: true
+      available: true,
+      image: ''
     };
     setMenu((prev) => ({
       ...prev,
@@ -408,7 +449,7 @@ export const DailyMenu: React.FC = () => {
               <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 mb-1">
                 Sopa o Entrada Incluida
               </label>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <input
                   type="text"
                   value={menu.soupOrStarter || ''}
@@ -416,15 +457,46 @@ export const DailyMenu: React.FC = () => {
                   className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
                   placeholder="Ej: Sopa de Res Criolla con Verduras"
                 />
-                <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={menu.includesSoup}
-                    onChange={(e) => setMenu({ ...menu, includesSoup: e.target.checked })}
-                    className="w-4 h-4 rounded text-amber-600"
-                  />
-                  <span>Incluida</span>
-                </label>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 whitespace-nowrap cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={menu.includesSoup}
+                      onChange={(e) => setMenu({ ...menu, includesSoup: e.target.checked })}
+                      className="w-4 h-4 rounded text-amber-600"
+                    />
+                    <span>Incluida</span>
+                  </label>
+
+                  {/* Soup Image Uploader */}
+                  {menu.soupImage ? (
+                    <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-amber-300 group/soup shrink-0">
+                      <img src={menu.soupImage} alt="Sopa" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setMenu({ ...menu, soupImage: undefined })}
+                        className="absolute inset-0 bg-rose-600/80 text-white opacity-0 group-hover/soup:opacity-100 flex items-center justify-center transition-opacity"
+                        title="Eliminar foto"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold whitespace-nowrap transition-colors">
+                      <Camera className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Foto Sopa</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleSoupImageUpload(f);
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -450,7 +522,7 @@ export const DailyMenu: React.FC = () => {
                   <Flame className="w-4 h-4 text-amber-600" />
                   <span>Platos Principales del Día ({menu.mainDishes.length})</span>
                 </h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Define las opciones de comida caliente para hoy</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Define las opciones con foto, precio y descripción</p>
               </div>
               <button
                 type="button"
@@ -462,7 +534,7 @@ export const DailyMenu: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {menu.mainDishes.map((dish, idx) => {
                 const vesPrice = (dish.priceUSD * currentRate).toFixed(2);
                 return (
@@ -527,6 +599,80 @@ export const DailyMenu: React.FC = () => {
                         />
                         <span>Disponible</span>
                       </label>
+                    </div>
+
+                    {/* Dish Photo Uploader Section */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-2.5 border-t border-slate-200/60">
+                      {dish.image ? (
+                        <div className="flex items-center gap-3 w-full">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0 shadow-xs group/img">
+                            <img
+                              src={dish.image}
+                              alt={dish.name}
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => updateMainDish(dish.id, 'image', '')}
+                              className="absolute inset-0 bg-rose-600/80 text-white opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity"
+                              title="Eliminar foto"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                              <ImageIcon className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Foto lista para WhatsApp y Catálogo</span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <label className="cursor-pointer text-[10px] font-extrabold text-amber-700 hover:text-amber-800 underline">
+                                Cambiar Foto
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const f = e.target.files?.[0];
+                                    if (f) handleDishImageUpload(dish.id, f);
+                                  }}
+                                />
+                              </label>
+                              <span className="text-slate-300">•</span>
+                              <button
+                                type="button"
+                                onClick={() => updateMainDish(dish.id, 'image', '')}
+                                className="text-[10px] font-extrabold text-rose-600 hover:text-rose-700"
+                              >
+                                Quitar
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 w-full">
+                          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 hover:border-amber-400 rounded-xl text-xs font-bold text-slate-700 transition-all shadow-xs group/btn">
+                            <Camera className="w-3.5 h-3.5 text-amber-600 group-hover/btn:scale-110 transition-transform" />
+                            <span>Cargar Foto</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) handleDishImageUpload(dish.id, f);
+                              }}
+                            />
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="O pegar URL de imagen..."
+                            value={dish.image || ''}
+                            onChange={(e) => updateMainDish(dish.id, 'image', e.target.value)}
+                            className="flex-1 px-2.5 py-1 bg-white border border-slate-200 rounded-xl text-[11px] text-slate-600"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -751,8 +897,16 @@ export const DailyMenu: React.FC = () => {
                 </div>
 
                 {menu.soupOrStarter && menu.includesSoup && (
-                  <div className="mt-2 py-1 px-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 font-bold inline-block">
-                    🍲 Sopa del Día: {menu.soupOrStarter}
+                  <div className="mt-2 py-1 px-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 font-bold inline-flex items-center gap-2">
+                    {menu.soupImage && (
+                      <img
+                        src={menu.soupImage}
+                        alt="Sopa"
+                        crossOrigin="anonymous"
+                        className="w-6 h-6 rounded-md object-cover border border-amber-500/40"
+                      />
+                    )}
+                    <span>🍲 Sopa del Día: {menu.soupOrStarter}</span>
                   </div>
                 )}
               </div>
@@ -771,8 +925,20 @@ export const DailyMenu: React.FC = () => {
                     return (
                       <div
                         key={dish.id || idx}
-                        className="bg-slate-900/80 backdrop-blur-md p-3 rounded-2xl border border-slate-800/90 flex items-start justify-between gap-3 shadow-sm hover:border-amber-500/40 transition-colors"
+                        className="bg-slate-900/80 backdrop-blur-md p-3 rounded-2xl border border-slate-800/90 flex items-center justify-between gap-3 shadow-sm hover:border-amber-500/40 transition-colors"
                       >
+                        {/* Dish Photo if Available */}
+                        {dish.image && (
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-slate-800 border border-slate-700/80 shrink-0 shadow-sm">
+                            <img
+                              src={dish.image}
+                              alt={dish.name}
+                              crossOrigin="anonymous"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs font-black text-amber-400">
@@ -924,8 +1090,8 @@ export const DailyMenu: React.FC = () => {
           </div>
 
           {/* Plato Principal */}
-          <div>
-            <label className="block text-[11px] font-extrabold uppercase text-slate-700 mb-1">
+          <div className="space-y-2">
+            <label className="block text-[11px] font-extrabold uppercase text-slate-700">
               Plato Principal Seleccionado *
             </label>
             <select
@@ -944,6 +1110,20 @@ export const DailyMenu: React.FC = () => {
                   </option>
                 ))}
             </select>
+
+            {orderSelectedDish?.image && (
+              <div className="flex items-center gap-2.5 p-2 bg-slate-100 rounded-2xl border border-slate-200">
+                <img
+                  src={orderSelectedDish.image}
+                  alt={orderSelectedDish.name}
+                  className="w-12 h-12 rounded-xl object-cover border border-slate-300 shrink-0"
+                />
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 block truncate">{orderSelectedDish.name}</span>
+                  <span className="text-[11px] font-extrabold text-amber-700">${orderSelectedDish.priceUSD.toFixed(2)} USD</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Contornos */}

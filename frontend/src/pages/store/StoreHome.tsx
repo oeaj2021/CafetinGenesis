@@ -307,9 +307,24 @@ export const StoreHome: React.FC = () => {
                         setSelectedDailyDish(dish);
                         setIsDailyMenuModalOpen(true);
                       }}
-                      className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-colors cursor-pointer flex flex-col justify-between"
+                      className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all cursor-pointer flex flex-col justify-between group/dish hover:-translate-y-0.5"
                     >
-                      <div className="font-extrabold text-xs text-white truncate">{dish.name}</div>
+                      {dish.image && (
+                        <div className="w-full h-28 rounded-xl overflow-hidden mb-2 bg-slate-800 border border-slate-700/60">
+                          <img
+                            src={dish.image}
+                            alt={dish.name}
+                            className="w-full h-full object-cover group-hover/dish:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-extrabold text-xs text-white truncate">{dish.name}</div>
+                        {dish.description && (
+                          <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">{dish.description}</p>
+                        )}
+                      </div>
                       <div className="flex items-baseline justify-between mt-2 pt-2 border-t border-white/5">
                         <span className="text-amber-400 font-mono font-extrabold text-sm">${dish.priceUSD.toFixed(2)}</span>
                         <span className="text-slate-400 font-mono text-[11px] font-bold">~ {ves} Bs</span>
@@ -870,7 +885,15 @@ export const StoreHome: React.FC = () => {
                   {/* Sopa / Entrada Banner */}
                   {dailyMenu.soupOrStarter && dailyMenu.includesSoup && (
                     <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/70 flex items-center gap-2.5 text-xs text-amber-900">
-                      <Soup className="w-4 h-4 text-amber-600 shrink-0" />
+                      {dailyMenu.soupImage ? (
+                        <img
+                          src={dailyMenu.soupImage}
+                          alt="Sopa"
+                          className="w-10 h-10 rounded-xl object-cover border border-amber-300 shrink-0"
+                        />
+                      ) : (
+                        <Soup className="w-4 h-4 text-amber-600 shrink-0" />
+                      )}
                       <span>
                         Sopa del día incluida: <strong>{dailyMenu.soupOrStarter}</strong>
                       </span>
@@ -898,10 +921,19 @@ export const StoreHome: React.FC = () => {
                                   : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                               }`}
                             >
+                              {dish.image && (
+                                <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-200 shrink-0 border border-slate-200 shadow-2xs">
+                                  <img
+                                    src={dish.image}
+                                    alt={dish.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <div
-                                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
                                       isSelected
                                         ? 'border-amber-600 bg-amber-600'
                                         : 'border-slate-400'
@@ -914,7 +946,7 @@ export const StoreHome: React.FC = () => {
                                   </span>
                                 </div>
                                 {dish.description && (
-                                  <p className="text-[11px] text-slate-500 mt-0.5 ml-6">
+                                  <p className="text-[11px] text-slate-500 mt-0.5 ml-6 line-clamp-1">
                                     {dish.description}
                                   </p>
                                 )}
