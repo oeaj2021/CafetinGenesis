@@ -16,6 +16,8 @@ import { CashRegister } from './pages/admin/CashRegister';
 import { KitchenDisplay } from './pages/admin/KitchenDisplay';
 import { DailyMenu } from './pages/admin/DailyMenu';
 import { useAuthStore } from './store/useAuthStore';
+import { useThemeStore } from './store/useThemeStore';
+import { api } from './api/client';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -27,6 +29,29 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 export const App: React.FC = () => {
+  const setTheme = useThemeStore((state) => state.setTheme);
+  const currentThemeId = useThemeStore((state) => state.currentThemeId);
+
+  React.useEffect(() => {
+    // Apply initial stored theme
+    if (currentThemeId) {
+      setTheme(currentThemeId);
+    }
+
+    // Sync with remote settings from database
+    const syncTheme = async () => {
+      try {
+        const { data } = await api.get('/settings');
+        if (data?.settings?.THEME_COLOR) {
+          setTheme(data.settings.THEME_COLOR);
+        }
+      } catch (err) {
+        // Fallback to local theme
+      }
+    };
+    syncTheme();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

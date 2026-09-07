@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Plus, Edit2, Trash2, Search, Layers, Download, ScanBarcode } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Package, Plus, Edit2, Trash2, Search, Layers, Download, ScanBarcode, Upload, Image as ImageIcon, Camera } from 'lucide-react';
 import { api } from '../../api/client';
 import { Product, Category, ExchangeRate } from '../../types';
 import { Modal } from '../../components/common/Modal';
@@ -27,6 +27,8 @@ export const Inventory: React.FC = () => {
   const [minStock, setMinStock] = useState(5);
   const [image, setImage] = useState('');
   const [isActive, setIsActive] = useState(true);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Category form state
   const [newCatName, setNewCatName] = useState('');
@@ -84,6 +86,20 @@ export const Inventory: React.FC = () => {
     setImage(p.image || '');
     setIsActive(p.isActive);
     setIsModalOpen(true);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) {
+      alert('La imagen no debe superar los 3MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -398,28 +414,84 @@ export const Inventory: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Categoría e Imagen con Uploader Directo */}
+          <div className="space-y-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Categoría *</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium"
+                className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">URL de Imagen</label>
-              <input
-                type="url"
-                placeholder="https://..."
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
-              />
+
+            {/* Product Image Uploader */}
+            <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 uppercase flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-amber-500" />
+                  <span>Foto / Imagen del Producto</span>
+                </label>
+                {image && (
+                  <button
+                    type="button"
+                    onClick={() => setImage('')}
+                    className="text-rose-600 hover:text-rose-700 text-[11px] font-bold flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Quitar foto</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                {/* Visual Preview */}
+                <div className="w-24 h-24 rounded-xl bg-white border border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-xs relative group">
+                  {image ? (
+                    <img
+                      src={image}
+                      alt="Preview producto"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center text-slate-400 p-1">
+                      <Camera className="w-6 h-6 mx-auto text-slate-300 mb-1" />
+                      <span className="text-[9px] block leading-tight font-medium">Sin foto</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-1 w-full space-y-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs active:scale-95"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{image ? 'Cambiar Imagen' : 'Subir Foto desde Dispositivo'}</span>
+                  </button>
+
+                  <input
+                    type="url"
+                    placeholder="O pegar URL web de imagen (https://...)"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    className="w-full px-3 py-1.5 text-[11px] bg-white border border-slate-200 rounded-xl placeholder:text-slate-400"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
