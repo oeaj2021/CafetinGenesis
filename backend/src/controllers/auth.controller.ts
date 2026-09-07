@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '../config/prisma';
 import { ENV } from '../config/env';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { logAudit } from '../services/audit.service';
 
 const loginSchema = z.object({
   identifier: z.string().min(1, 'Email o usuario requerido'),
@@ -40,6 +41,16 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
       ENV.JWT_SECRET,
       { expiresIn: '7d' }
     );
+
+    logAudit({
+      action: 'LOGIN',
+      module: 'AUTH',
+      description: `Inicio de sesión exitoso: "${user.name}" (@${user.username})`,
+      userId: user.id,
+      userName: user.username,
+      userRole: user.role,
+      ipAddress: req.ip
+    });
 
     res.json({
       message: 'Inicio de sesión exitoso',

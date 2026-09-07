@@ -16,6 +16,7 @@ import { CashRegister } from './pages/admin/CashRegister';
 import { KitchenDisplay } from './pages/admin/KitchenDisplay';
 import { DailyMenu } from './pages/admin/DailyMenu';
 import { UsersManagement } from './pages/admin/Users';
+import { AuditLogsPage } from './pages/admin/AuditLogs';
 import { useAuthStore } from './store/useAuthStore';
 import { useThemeStore } from './store/useThemeStore';
 import { api } from './api/client';
@@ -83,6 +84,7 @@ export const App: React.FC = () => {
           <Route path="debts" element={<Debts />} />
           <Route path="clients" element={<Clients />} />
           <Route path="users" element={<UsersManagement />} />
+          <Route path="audit" element={<AuditLogsPage />} />
           <Route path="rates" element={<Rates />} />
           <Route path="settings" element={<Settings />} />
         </Route>

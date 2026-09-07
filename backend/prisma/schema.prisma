@@ -196,3 +196,18 @@ model CashShift {
   openedAt        DateTime  @default(now())
   closedAt        DateTime?
 }
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, CASH_CLOSE, RATE_CHANGE, etc.
+  module      String   // PRODUCTS, INVOICES, PURCHASES, USERS, SETTINGS, RATES, CASH, CLIENTS
+  description String
+  userId      String?
+  userName    String?
+  userRole    String?
+  ipAddress   String?
+  oldValues   String?  // JSON string of previous state
+  newValues   String?  // JSON string of updated state
+  metadata    String?  // Additional context
+  createdAt   DateTime @default(now())
+}

@@ -244,3 +244,24 @@ export interface DailyMenuData {
   deliveryAvailable: boolean;
 }
 
+export interface AuditLog {
+  id: string;
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'CASH_OPEN' | 'CASH_CLOSE' | 'RATE_SYNC' | 'PAYMENT' | 'EXPORT';
+  module: 'AUTH' | 'PRODUCTS' | 'CATEGORIES' | 'INVOICES' | 'PURCHASES' | 'USERS' | 'SETTINGS' | 'RATES' | 'CASH' | 'CLIENTS' | 'DAILY_MENU';
+  description: string;
+  userId?: string | null;
+  userName?: string | null;
+  userRole?: string | null;
+  ipAddress?: string | null;
+  oldValues?: string | null;
+  newValues?: string | null;
+  metadata?: string | null;
+  createdAt: string;
+}
+
+export interface AuditStats {
+  totalLogs: number;
+  todayLogsCount: number;
+  recentCritical: AuditLog[];
+}
+

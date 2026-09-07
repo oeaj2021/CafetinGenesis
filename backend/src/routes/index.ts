@@ -13,11 +13,13 @@ import cashShiftRoutes from './cashShift.routes';
 import mobileRoutes from './mobile.routes';
 import dailyMenuRoutes from './dailyMenu.routes';
 import usersRoutes from './users.routes';
+import auditRoutes from './audit.routes';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
+router.use('/audit', auditRoutes);
 router.use('/rates', ratesRoutes);
 router.use('/products', productsRoutes);
 router.use('/categories', categoriesRoutes);

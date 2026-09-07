@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../config/prisma';
+import { logAudit } from '../services/audit.service';
+import { AuthRequest } from '../middlewares/auth.middleware';
 
 const productSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
@@ -91,7 +93,7 @@ export const getProductByBarcode = async (req: Request, res: Response, next: Nex
   }
 };
 
-export const createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const createProduct = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const data = productSchema.parse(req.body);
     const product = await prisma.product.create({
@@ -101,15 +103,28 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       },
       include: { category: true }
     });
+
+    logAudit({
+      action: 'CREATE',
+      module: 'PRODUCTS',
+      description: `Creación de producto: "${product.name}" ($${product.priceUSD.toFixed(2)})`,
+      userId: req.user?.id,
+      userName: req.user?.username || req.user?.name,
+      userRole: req.user?.role,
+      ipAddress: req.ip,
+      newValues: { id: product.id, name: product.name, priceUSD: product.priceUSD, stock: product.stock }
+    });
+
     res.status(201).json({ message: 'Producto registrado con éxito', product });
   } catch (error) {
     next(error);
   }
 };
 
-export const updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateProduct = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
+    const oldProduct = await prisma.product.findUnique({ where: { id } });
     const data = productSchema.partial().parse(req.body);
     const product = await prisma.product.update({
       where: { id },
@@ -119,16 +134,42 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       },
       include: { category: true }
     });
+
+    logAudit({
+      action: 'UPDATE',
+      module: 'PRODUCTS',
+      description: `Actualización de producto: "${product.name}"`,
+      userId: req.user?.id,
+      userName: req.user?.username || req.user?.name,
+      userRole: req.user?.role,
+      ipAddress: req.ip,
+      oldValues: oldProduct ? { name: oldProduct.name, priceUSD: oldProduct.priceUSD, stock: oldProduct.stock, costUSD: oldProduct.costUSD } : null,
+      newValues: { name: product.name, priceUSD: product.priceUSD, stock: product.stock, costUSD: product.costUSD }
+    });
+
     res.json({ message: 'Producto actualizado con éxito', product });
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const deleteProduct = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
+    const productToDelete = await prisma.product.findUnique({ where: { id } });
     await prisma.product.delete({ where: { id } });
+
+    logAudit({
+      action: 'DELETE',
+      module: 'PRODUCTS',
+      description: `Eliminación de producto: "${productToDelete?.name || id}"`,
+      userId: req.user?.id,
+      userName: req.user?.username || req.user?.name,
+      userRole: req.user?.role,
+      ipAddress: req.ip,
+      oldValues: productToDelete
+    });
+
     res.json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
     next(error);

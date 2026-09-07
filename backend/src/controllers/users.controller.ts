@@ -1,8 +1,9 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '../config/prisma';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { logAudit } from '../services/audit.service';
 
 const createUserSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -105,6 +106,17 @@ export const createUser = async (req: AuthRequest, res: Response, next: NextFunc
       }
     });
 
+    logAudit({
+      action: 'CREATE',
+      module: 'USERS',
+      description: `Creación de cuenta de usuario: "${user.name}" (@${user.username}) con rol ${user.role}`,
+      userId: req.user?.id,
+      userName: req.user?.username || req.user?.name,
+      userRole: req.user?.role,
+      ipAddress: req.ip,
+      newValues: { id: user.id, name: user.name, username: user.username, role: user.role }
+    });
+
     res.status(201).json({ message: 'Usuario creado exitosamente', user });
   } catch (error) {
     next(error);
@@ -165,6 +177,18 @@ export const updateUser = async (req: AuthRequest, res: Response, next: NextFunc
       }
     });
 
+    logAudit({
+      action: 'UPDATE',
+      module: 'USERS',
+      description: `Actualización de cuenta de usuario: "${user.name}" (@${user.username})`,
+      userId: req.user?.id,
+      userName: req.user?.username || req.user?.name,
+      userRole: req.user?.role,
+      ipAddress: req.ip,
+      oldValues: { name: existingUser.name, username: existingUser.username, role: existingUser.role, email: existingUser.email },
+      newValues: { name: user.name, username: user.username, role: user.role, email: user.email }
+    });
+
     res.json({ message: 'Usuario actualizado con éxito', user });
   } catch (error) {
     next(error);
@@ -195,6 +219,18 @@ export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunc
     }
 
     await prisma.user.delete({ where: { id } });
+
+    logAudit({
+      action: 'DELETE',
+      module: 'USERS',
+      description: `Eliminación permanente de usuario: "${userToDelete.name}" (@${userToDelete.username})`,
+      userId: req.user?.id,
+      userName: req.user?.username || req.user?.name,
+      userRole: req.user?.role,
+      ipAddress: req.ip,
+      oldValues: { id: userToDelete.id, name: userToDelete.name, username: userToDelete.username, role: userToDelete.role }
+    });
+
     res.json({ message: 'Usuario eliminado correctamente' });
   } catch (error) {
     next(error);
