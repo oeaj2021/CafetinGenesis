@@ -11,7 +11,7 @@ const productSchema = z.object({
   priceUSD: z.number().nonnegative('El precio debe ser >= 0'),
   stock: z.number().int().nonnegative('El stock debe ser >= 0'),
   minStock: z.number().int().nonnegative().default(5),
-  image: z.string().url().optional().nullable().or(z.literal('')),
+  image: z.string().optional().nullable().or(z.literal('')),
   isActive: z.boolean().default(true)
 });
 
