@@ -94,7 +94,9 @@ export const AdminLayout: React.FC = () => {
     const fetchSettings = async () => {
       try {
         const { data } = await api.get('/settings');
-        if (data && typeof data === 'object') {
+        if (data?.settings) {
+          setBusinessSettings(data.settings);
+        } else if (data && typeof data === 'object') {
           setBusinessSettings(data);
         }
       } catch (err) {

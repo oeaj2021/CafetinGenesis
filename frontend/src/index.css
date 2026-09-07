@@ -4,20 +4,46 @@
 
 :root {
   --primary-50: #fffbeb;
+  --primary-50-rgb: 255 251 235;
   --primary-100: #fef3c7;
+  --primary-100-rgb: 254 243 199;
   --primary-200: #fde68a;
+  --primary-200-rgb: 253 230 138;
   --primary-300: #fcd34d;
+  --primary-300-rgb: 252 211 77;
   --primary-400: #fbbf24;
+  --primary-400-rgb: 251 191 36;
   --primary-500: #f59e0b;
+  --primary-500-rgb: 245 158 11;
   --primary-600: #d97706;
+  --primary-600-rgb: 217 119 6;
   --primary-700: #b45309;
+  --primary-700-rgb: 180 83 9;
   --primary-800: #92400e;
+  --primary-800-rgb: 146 64 14;
   --primary-900: #78350f;
+  --primary-900-rgb: 120 53 15;
   --primary-950: #451a03;
+  --primary-950-rgb: 69 26 3;
   --primary-brand: #f59e0b;
+  --primary-brand-rgb: 245 158 11;
   --primary-brand-hover: #d97706;
   --primary-brand-light: #fef3c7;
   --primary-brand-text: #78350f;
+  --primary-brand-dark: #b45309;
+
+  /* Genesis aliases */
+  --genesis-50-rgb: var(--primary-50-rgb);
+  --genesis-100-rgb: var(--primary-100-rgb);
+  --genesis-200-rgb: var(--primary-200-rgb);
+  --genesis-300-rgb: var(--primary-300-rgb);
+  --genesis-400-rgb: var(--primary-400-rgb);
+  --genesis-500-rgb: var(--primary-500-rgb);
+  --genesis-600-rgb: var(--primary-600-rgb);
+  --genesis-700-rgb: var(--primary-700-rgb);
+  --genesis-800-rgb: var(--primary-800-rgb);
+  --genesis-900-rgb: var(--primary-900-rgb);
+  --genesis-950-rgb: var(--primary-950-rgb);
 }
 
 @layer base {
@@ -26,54 +52,9 @@
   }
 }
 
-/* Dynamic Brand Remapping Across the Whole System */
-.bg-amber-50, .bg-genesis-50 { background-color: var(--primary-50) !important; }
-.bg-amber-100, .bg-genesis-100 { background-color: var(--primary-100) !important; }
-.bg-amber-200, .bg-genesis-200 { background-color: var(--primary-200) !important; }
-.bg-amber-300, .bg-genesis-300 { background-color: var(--primary-300) !important; }
-.bg-amber-400, .bg-genesis-400 { background-color: var(--primary-400) !important; }
-.bg-amber-500, .bg-genesis-500 { background-color: var(--primary-500) !important; }
-.bg-amber-600, .bg-genesis-600 { background-color: var(--primary-600) !important; }
-.bg-amber-700, .bg-genesis-700 { background-color: var(--primary-700) !important; }
-.bg-amber-800, .bg-genesis-800 { background-color: var(--primary-800) !important; }
-.bg-amber-900, .bg-genesis-900 { background-color: var(--primary-900) !important; }
-.bg-amber-950, .bg-genesis-950 { background-color: var(--primary-950) !important; }
-
-.hover\:bg-amber-50:hover { background-color: var(--primary-50) !important; }
-.hover\:bg-amber-100:hover { background-color: var(--primary-100) !important; }
-.hover\:bg-amber-200:hover { background-color: var(--primary-200) !important; }
-.hover\:bg-amber-400:hover { background-color: var(--primary-400) !important; }
-.hover\:bg-amber-500:hover { background-color: var(--primary-500) !important; }
-.hover\:bg-amber-600:hover { background-color: var(--primary-600) !important; }
-.hover\:bg-amber-700:hover { background-color: var(--primary-700) !important; }
-
-.text-amber-50, .text-genesis-50 { color: var(--primary-50) !important; }
-.text-amber-100, .text-genesis-100 { color: var(--primary-100) !important; }
-.text-amber-200, .text-genesis-200 { color: var(--primary-200) !important; }
-.text-amber-300, .text-genesis-300 { color: var(--primary-300) !important; }
-.text-amber-400, .text-genesis-400 { color: var(--primary-400) !important; }
-.text-amber-500, .text-genesis-500 { color: var(--primary-500) !important; }
-.text-amber-600, .text-genesis-600 { color: var(--primary-600) !important; }
-.text-amber-700, .text-genesis-700 { color: var(--primary-700) !important; }
-.text-amber-800, .text-genesis-800 { color: var(--primary-800) !important; }
-.text-amber-900, .text-genesis-900 { color: var(--primary-900) !important; }
-.text-amber-950, .text-genesis-950 { color: var(--primary-950) !important; }
-
-.border-amber-100, .border-genesis-100 { border-color: var(--primary-100) !important; }
-.border-amber-200, .border-genesis-200 { border-color: var(--primary-200) !important; }
-.border-amber-300, .border-genesis-300 { border-color: var(--primary-300) !important; }
-.border-amber-400, .border-genesis-400 { border-color: var(--primary-400) !important; }
-.border-amber-500, .border-genesis-500 { border-color: var(--primary-500) !important; }
-.border-amber-600, .border-genesis-600 { border-color: var(--primary-600) !important; }
-
-.focus\:border-amber-400:focus, .focus\:border-amber-500:focus { border-color: var(--primary-500) !important; }
-.focus\:ring-amber-400\/20:focus { --tw-ring-color: var(--primary-200) !important; }
-.ring-amber-400, .ring-amber-500 { --tw-ring-color: var(--primary-400) !important; }
-.shadow-amber-500\/20, .shadow-amber-500\/25, .shadow-amber-500\/30 { --tw-shadow-color: var(--primary-500) !important; }
-
 ::selection {
-  background-color: var(--primary-500) !important;
-  color: #ffffff !important;
+  background-color: rgb(var(--primary-500-rgb));
+  color: #ffffff;
 }
 
 @media print {

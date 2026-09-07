@@ -225,17 +225,36 @@ export const THEME_PRESETS: ThemePreset[] = [
   }
 ];
 
+export const hexToRgbString = (hex: string): string => {
+  let c = hex.replace('#', '');
+  if (c.length === 3) {
+    c = c.split('').map((char) => char + char).join('');
+  }
+  const num = parseInt(c, 16);
+  if (isNaN(num)) return '245 158 11';
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `${r} ${g} ${b}`;
+};
+
 export const applyThemeToDocument = (preset: ThemePreset) => {
+  if (typeof document === 'undefined') return;
   const root = document.documentElement;
   root.setAttribute('data-theme', preset.id);
 
-  // Set individual palette shades
-  Object.entries(preset.shades).forEach(([shade, color]) => {
-    root.style.setProperty(`--primary-${shade}`, color);
-    root.style.setProperty(`--genesis-${shade}`, color);
+  // Set individual palette shades in both Hex and RGB space-separated format
+  Object.entries(preset.shades).forEach(([shade, hexColor]) => {
+    const rgb = hexToRgbString(hexColor);
+    root.style.setProperty(`--primary-${shade}`, hexColor);
+    root.style.setProperty(`--primary-${shade}-rgb`, rgb);
+    root.style.setProperty(`--genesis-${shade}`, hexColor);
+    root.style.setProperty(`--genesis-${shade}-rgb`, rgb);
   });
 
+  const brandRgb = hexToRgbString(preset.primary);
   root.style.setProperty('--primary-brand', preset.primary);
+  root.style.setProperty('--primary-brand-rgb', brandRgb);
   root.style.setProperty('--primary-brand-hover', preset.primaryHover);
   root.style.setProperty('--primary-brand-light', preset.primaryLight);
   root.style.setProperty('--primary-brand-text', preset.primaryText);
